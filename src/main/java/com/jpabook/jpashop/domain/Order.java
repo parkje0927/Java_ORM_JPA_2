@@ -1,0 +1,21 @@
+package com.jpabook.jpashop.domain;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "ORDERS")
+public class Order {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "ORDER_ID")
+    private Long id;
+
+    @Column(name = "MEMBER_ID")
+    private Long memberId;
+    private LocalDateTime orderDate; //최신 버전에서는 java8 LocalDate, LocalDateTime 자동 매핑
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+}
