@@ -192,6 +192,7 @@ public class Team {
   @JoinColumn(name = "TEAM_ID")
   private List<Member> members = new ArrayList<>();
 }
+<<<<<<< HEAD
 ```
 
 ### 일대일
@@ -223,3 +224,6 @@ public class Team {
 
 ### 다대다
 - 다대다는 실무에서 사용 X
+=======
+```
+>>>>>>> 28c4f06 ([UPDATE] 다대일, 일대다 연관관계)
