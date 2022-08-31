@@ -71,3 +71,125 @@ Member 에 있는 team 이 연관관계의 주인이다.
 - 양방향 매핑은 반대 방향으로 조회(객체 그래프 탐색) 기능이 추가된 것 뿐
 - JPQL 에서 역방향으로 탐색할 일이 많음.
 - 단방향 매핑을 잘 하고 양방향은 필요할 때 추가해도 됨(테이블에 영향을 주지 않음.)
+
+### 연관관계 매핑시 고려사항 3가지
+1) 다중성
+- 다대일 ManyToOne
+- 일대다 OneToMany
+- 일대일 OneToOne
+- 다대다 ManyToMany -> 실무에서 쓰면 안된다.
+
+2) 단방향, 양방향
+- 테이블
+  - 외래키 하나로 양쪽 조인 가능
+  - 사실 방향이라는 개념이 없음
+- 객체
+  - 참조용 필드가 있는 쪽으로만 참조 가능
+  - 한쪽만 참조하면 단방향
+  - 양쪽이 서로 참조하면 양방향
+
+3) 연관관계의 주인
+- 테이블은 외래키 하나로 두 테이블이 연관관계를 맺음.
+- 객체 양방향 관계는 A -> B, B -> A 처럼 참조가 2군데
+- 객체 양항향 관계는 참조가 2군데 있음. 둘 중 테이블의 외래키를 관리할 곳을 지정해야 함.
+- 연관관계의 주인 : 외래키를 관리하는 참조
+- 주인의 반대편 : 외래키에 영향을 주지 않음, 단순 조회만 가능
+
+### 다대일 [N:1]
+- 다N 쪽에 외래키가 있다.
+- 가장 많이 사용한다.
+
+- 단방향
+```java
+public class Member {
+
+  //...
+  
+  @ManyToOne
+  @JoinColumn(name = "TEAM_ID")
+  private Team team;
+}
+
+public class Team {
+  //Team 은 그냥 두면 된다.
+}
+```
+
+- 양방향
+  - 외래키가 있는 쪽이 연관관계의 주인
+  - 양쪽이 서로 참조할 때
+```java
+public class Member {
+
+  //...
+
+  @ManyToOne
+  @JoinColumn(name = "TEAM_ID")
+  private Team team;
+}
+
+public class Team {
+
+  //...
+
+  @OneToMany(mappedBy = team)
+  private List<Member> members = new ArrayList<>();
+}
+```
+
+### 일대다 1:N
+- 이 모델은 권장하진 않는다. 실무에서 거의 안 쓴다.
+- 왜냐면 insert 후 다시 update 쿼리가 일어나게 되므로 실무에서 쓰기에는 위험하다.
+
+- 단방향
+  - Team 에 있는 members 가 연관관계의 주인이 된다.
+  - 1이 연관관계의 주인
+  - 테이블은 다쪽에 외래키가 있다.
+  - 객체와 테이블의 차이 때문에 반대편 테이블의 외래키를 관리하는 특이한 구조
+  - @JoinColumn 을 꼭 사용해야 한다. 그렇지 않으면 조인 테이블 방식을 사용함(중간에 테이블을 하나 추가함)
+
+  - 엔티티가 관리하는 외래키가 다른 테이블에 있음.
+  - 연관관계 관리를 위해 추가로 UPDATE SQL 실행
+  - 일대다 단방향 매핑보다는 **다대일 양방향 매핑**을 사용하자
+
+```java
+public class Member {
+
+  //...
+  
+}
+
+public class Team {
+
+  //...
+
+  @OneToMany
+  @JoinColumn(name = "TEAM_ID")
+  private List<Member> members = new ArrayList<>();
+}
+```
+
+- 양방향
+  - 이런 매핑은 공식적으로 존재 X
+  - 읽기 전용 필드를 사용해서 양방향처럼 사용하는 방법
+  - 다대일 양방향을 사용하자!!!!
+
+```java
+public class Member {
+
+  //...
+  //연관관계 주인은 Team 의 members 이기 때문에(일대다니까) -> insertable, updatable false 를 해서 읽기 전용으로 만들어버린다.
+  @ManyToOne
+  @JoinColumn(insertable = false, updatable = false)
+  private Team team;
+}
+
+public class Team {
+
+  //...
+
+  @OneToMany
+  @JoinColumn(name = "TEAM_ID")
+  private List<Member> members = new ArrayList<>();
+}
+```
