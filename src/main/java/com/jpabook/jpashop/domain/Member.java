@@ -3,16 +3,23 @@ package com.jpabook.jpashop.domain;
 import javax.persistence.*;
 
 @Entity
-public class Member {
+//@SequenceGenerator(name = "member_seq_generator", sequenceName = "member_seq")
+public class Member extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "MEMBER_ID")
+    @GeneratedValue
     private Long id;
-    private String name;
-    private String city;
-    private String street;
-    private String zipcode;
+
+    @Column(name = "name")
+    private String username;
+
+//    @Column(name = "TEAM_ID")
+//    private Long teamId;
+
+    //member 입장에서는 many 이고 team 은 one 이므로
+    @ManyToOne
+    @JoinColumn(name = "TEAM_ID")
+    private Team team;
 
     public Long getId() {
         return id;
@@ -22,35 +29,44 @@ public class Member {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getCity() {
-        return city;
+    public Team getTeam() {
+        return team;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setTeam(Team team) {
+        this.team = team;
+//        team.getMembers().add(this);
     }
 
-    public String getStreet() {
-        return street;
+    public void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
     }
 
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public String getZipcode() {
-        return zipcode;
-    }
-
-    public void setZipcode(String zipcode) {
-        this.zipcode = zipcode;
-    }
+//    //enum 에는 ORDINAL 은 사용하지 말기!!!
+//    @Enumerated(EnumType.STRING)
+//    private RoleType roleType;
+//
+//    @Temporal(TemporalType.TIMESTAMP)
+//    private Date createdDate;
+//
+//    private LocalDate testLocalDate;
+//    private LocalDateTime testLocalDateTime;
+//
+//    @Temporal(TemporalType.TIMESTAMP)
+//    private Date lastModifiedDate;
+//
+//    @Lob //매우 큰 값일 경우
+//    private String description;
+//
+//    @Transient //그냥 메모리에만 사용하고 db 에는 저장하지 말기 -> 컬럼이 생기지 않음
+//    private int temp;
 }

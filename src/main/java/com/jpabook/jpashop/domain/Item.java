@@ -1,21 +1,18 @@
 package com.jpabook.jpashop.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
-public class Item {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@DiscriminatorColumn //DTYPE 을 생성해준다. -> 넣어주는 것이 좋다.
+public abstract class Item {
 
     @Id
     @GeneratedValue
-    @Column(name = "ITEM_ID")
     private Long id;
 
     private String name;
     private int price;
-    private int stockQuantity;
 
     public Long getId() {
         return id;
@@ -39,13 +36,5 @@ public class Item {
 
     public void setPrice(int price) {
         this.price = price;
-    }
-
-    public int getStockQuantity() {
-        return stockQuantity;
-    }
-
-    public void setStockQuantity(int stockQuantity) {
-        this.stockQuantity = stockQuantity;
     }
 }
